@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Liquidación de Garantías</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #e74c3c;
+            --primary-dark: #c0392b;
+            --primary-light: #ff6b6b;
+            --secondary: #2c3e50;
+            --accent: #ff9f43;
+            --light: #f5f6fa;
+            --dark: #2f3640;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #ff6b6b 0%, #e74c3c 100%);
+            font-family: 'Montserrat', sans-serif;
+            min-height: 100vh;
+            color: white;
+            padding: 20px;
+        }
+        
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            color: var(--dark);
+        }
+        
+        .app-header {
+            background: linear-gradient(120deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 20px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+        
+        .logo {
+            height: 70px;
+            width: auto;
+        }
+        
+        .header-text {
+            text-align: center;
+        }
+        
+        .app-header h1 {
+            font-weight: 800;
+            margin: 0;
+            font-size: 32px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .app-header p {
+            opacity: 0.9;
+            margin: 10px 0 0;
+            font-weight: 500;
+        }
+        
+        .content-section {
+            padding: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 700;
+            color: var(--secondary);
+            font-size: 16px;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+            color: var(--dark);
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.2);
+            outline: none;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 0 5px 20px rgba(231, 76, 60, 0.4);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(231, 76, 60, 0.5);
+            background: linear-gradient(to right, var(--primary-dark), var(--primary));
+        }
+        
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+        
+        .btn-container {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .stock-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 20px;
+            padding: 25px;
+            background: var(--light);
+            border-radius: 15px;
+            margin-top: 15px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .stock-item {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            position: relative;
+            border: 3px solid transparent;
+        }
+        
+        .stock-item:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .stock-item.selected {
+            background: linear-gradient(135deg, var(--accent) 0%, #ff7f00 100%);
+            transform: scale(1.1);
+            box-shadow: 0 12px 20px rgba(255, 159, 67, 0.4);
+            border-color: white;
+        }
+        
+        .stock-message {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 30px;
+            color: #7f8c8d;
+            font-style: italic;
+            font-size: 18px;
+        }
+        
+        .notification {
+            display: none;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .notification.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+        
+        .notification.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+        
+        .icon {
+            margin-right: 10px;
+        }
+        
+        .section-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--primary-dark);
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid var(--primary);
+            display: inline-block;
+        }
+        
+        @media (max-width: 768px) {
+            .btn-container {
+                flex-direction: column;
+            }
+            
+            .stock-grid {
+                grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+                gap: 15px;
+                padding: 20px;
+            }
+            
+            .stock-item {
+                width: 70px;
+                height: 70px;
+                font-size: 18px;
+            }
+            
+            .content-section {
+                padding: 20px;
+            }
+            
+            .logo-container {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+            
+            .app-header h1 {
+                font-size: 26px;
+            }
+        }
+        
+        .summary-box {
+            background: var(--light);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 25px;
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+        
+        .summary-label {
+            font-weight: 600;
+            color: var(--secondary);
+        }
+        
+        .summary-value {
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="app-header">
+            <div class="logo-container">
+                <img src="logo.png" alt="Logo" class="logo">
+                <div class="header-text">
+                    <h1><i class="fa-solid fa-file-invoice-dollar icon"></i>Liquidacion de Garantias</h1>
+                    <p>Sistema moderno para gestionar la liquidacion de garantias de extintores</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="content-section">
+            <h2 class="section-title">Proceso de Liquidacion</h2>
+            
+            <div id="notification" class="notification"></div>
+            
+            <form id="liquidarForm">
+                <div class="form-group">
+                    <label for="tecnicoLiquidar">Tecnico *</label>
+                    <select id="tecnicoLiquidar" class="form-control" onchange="cargarStockTecnico()">
+                        <option value="">Seleccionar tecnico</option>
+                        <option value="JOSHEP">JOSHEP</option>
+                        <option value="REYES">REYES</option>
+                        <option value="CARLOS">CARLOS</option>
+                        <option value="MARIA">MARIA</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Stock del Tecnico *</label>
+                    <div id="stockTecnico" class="stock-grid">
+                        <div class="stock-message">Selecciona un tecnico para ver su stock</div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="razonLiquidar">Razon Social (Cliente) *</label>
+                    <input id="razonLiquidar" type="text" class="form-control" placeholder="Nombre del cliente">
+                </div>
+                
+                <div class="form-group">
+                    <label for="direccionLiquidar">Direccion *</label>
+                    <input id="direccionLiquidar" type="text" class="form-control" placeholder="Direccion del cliente">
+                </div>
+                
+                <div class="form-group">
+                    <label for="guiaLiquidar">Guia *</label>
+                    <input id="guiaLiquidar" type="text" class="form-control" placeholder="Numero de guia">
+                </div>
+                
+                <div class="summary-box">
+                    <h3 style="color: var(--primary-dark); margin-bottom: 15px;">Resumen de Liquidacion</h3>
+                    <div class="summary-item">
+                        <span class="summary-label">Extintores seleccionados:</span>
+                        <span class="summary-value" id="resumenCantidad">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Tecnico asignado:</span>
+                        <span class="summary-value" id="resumenTecnico">No seleccionado</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Cliente:</span>
+                        <span class="summary-value" id="resumenCliente">No especificado</span>
+                    </div>
+                </div>
+                
+                <div class="btn-container">
+                    <button type="button" onclick="liquidarGarantias()" class="btn btn-primary">
+                        <i class="fa-solid fa-money-bill-wave icon"></i> Liquidar Garantias
+                    </button>
+                    <button type="button" onclick="limpiarFormulario()" class="btn btn-secondary">
+                        <i class="fa-solid fa-times icon"></i> Limpiar Formulario
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let stockTecnicoActual = [];
+        let extintoresSeleccionados = [];
+        
+        // Cargar stock del tecnico (simulado)
+        function cargarStockTecnico() {
+            const tecnico = document.getElementById('tecnicoLiquidar').value;
+            if (!tecnico) {
+                document.getElementById('stockTecnico').innerHTML = '<div class="stock-message">Selecciona un tecnico para ver su stock</div>';
+                document.getElementById('resumenTecnico').textContent = 'No seleccionado';
+                return;
+            }
+            
+            document.getElementById('stockTecnico').innerHTML = '<div class="stock-message">Cargando stock...</div>';
+            document.getElementById('resumenTecnico').textContent = tecnico;
+            
+            // Simular retraso de carga
+            setTimeout(() => {
+                // Generar numeros de extintores aleatorios para simular stock
+                const stock = Array.from({length: 24}, (_, i) => 
+                    Math.floor(Math.random() * 1000) + 1
+                );
+                
+                stockTecnicoActual = stock;
+                const stockContainer = document.getElementById('stockTecnico');
+                
+                if (stock.length === 0) {
+                    stockContainer.innerHTML = '<div class="stock-message">El tecnico no tiene extintores en stock</div>';
+                    return;
+                }
+                
+                let html = '';
+                stock.forEach(numero => {
+                    html += `
+                        <div class="stock-item" onclick="toggleSeleccion(this, ${numero})">
+                            ${numero}
+                        </div>
+                    `;
+                });
+                
+                stockContainer.innerHTML = html;
+                extintoresSeleccionados = [];
+                actualizarResumen();
+            }, 800);
+        }
+        
+        // Alternar seleccion de extintor
+        function toggleSeleccion(element, numero) {
+            element.classList.toggle('selected');
+            
+            if (element.classList.contains('selected')) {
+                extintoresSeleccionados.push(numero);
+            } else {
+                const index = extintoresSeleccionados.indexOf(numero);
+                if (index > -1) {
+                    extintoresSeleccionados.splice(index, 1);
+                }
+            }
+            
+            actualizarResumen();
+        }
+        
+        // Actualizar resumen
+        function actualizarResumen() {
+            document.getElementById('resumenCantidad').textContent = extintoresSeleccionados.length;
+            
+            const cliente = document.getElementById('razonLiquidar').value;
+            if (cliente) {
+                document.getElementById('resumenCliente').textContent = cliente;
+            }
+        }
+        
+        // Mostrar notificacion
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = 'notification ' + type;
+            notification.style.display = 'block';
+            
+            setTimeout(function() {
+                notification.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Liquidar garantias
+        function liquidarGarantias() {
+            const tecnico = document.getElementById('tecnicoLiquidar').value;
+            const razon = document.getElementById('razonLiquidar').value.trim();
+            const direccion = document.getElementById('direccionLiquidar').value.trim();
+            const guia = document.getElementById('guiaLiquidar').value.trim();
+            
+            if (!tecnico || extintoresSeleccionados.length === 0 || !razon || !direccion || !guia) {
+                showNotification('Completa todos los campos obligatorios y selecciona al menos un extintor.', 'error');
+                return;
+            }
+            
+            // Simular proceso de liquidacion
+            showNotification(`Procesando liquidacion de ${extintoresSeleccionados.length} extintores para ${razon}...`, 'success');
+            
+            // Simular retraso en el proceso
+            setTimeout(() => {
+                showNotification(`Liquidacion completada exitosamente para ${razon}. Guia: ${guia}`, 'success');
+                
+                // Limpiar selecciones
+                document.querySelectorAll('.stock-item.selected').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                
+                extintoresSeleccionados = [];
+                actualizarResumen();
+            }, 2000);
+        }
+        
+        // Limpiar formulario
+        function limpiarFormulario() {
+            document.getElementById('liquidarForm').reset();
+            document.getElementById('stockTecnico').innerHTML = '<div class="stock-message">Selecciona un tecnico para ver su stock</div>';
+            
+            // Limpiar selecciones
+            document.querySelectorAll('.stock-item.selected').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            extintoresSeleccionados = [];
+            actualizarResumen();
+            
+            showNotification('Formulario limpiado correctamente.', 'success');
+        }
+        
+        // Actualizar resumen cuando se escribe en el campo de cliente
+        document.getElementById('razonLiquidar').addEventListener('input', function() {
+            document.getElementById('resumenCliente').textContent = this.value || 'No especificado';
+        });
+    </script>
+</body>
+</html>
